@@ -3,6 +3,7 @@ const inputEl = document.getElementById("input-el");
 const inputBtn = document.getElementById("input-btn");
 const ulEl = document.getElementById("ul-el");
 const deleteBtn = document.getElementById("delete-btn");
+const tabBtn = document.getElementById("tab-btn");
 
 inputBtn.addEventListener("click", function () {
   const inputValue = inputEl.value.trim();
@@ -26,13 +27,32 @@ inputBtn.addEventListener("click", function () {
   }
 });
 
+tabBtn.addEventListener("click", function () {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const customName = prompt("Enter a custom name for the tab or click OK:");
+
+    const linkObject = {
+      name: customName || tabs[0].url,
+      url: tabs[0].url,
+    };
+
+    myLeads.push(linkObject);
+    localStorage.setItem("myLinks", JSON.stringify(myLeads));
+
+    renderLeads();
+    saveLeads();
+  });
+});
+
 function renderLeads() {
   let listItems = "";
   for (let i = 0; i < myLeads.length; i++) {
     listItems += `<div class="link-container">
-      <a target='_blank' href='${myLeads[i].url}'>${myLeads[i].name}</a>
-      <button class="delete-link-btn" data-index="${i}">Remove</button>
-      </div>`;
+    <a target='_blank' href='${
+      typeof myLeads[i] === "string" ? myLeads[i] : myLeads[i].url
+    }'>${typeof myLeads[i] === "string" ? myLeads[i] : myLeads[i].name}</a>
+    <button class="delete-link-btn" data-index="${i}">Remove</button>
+    </div>`;
   }
   ulEl.innerHTML = listItems;
 
